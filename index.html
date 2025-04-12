@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fun Personality Questions 😇</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f9f5ff;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      padding: 1rem;
+      transition: background-color 0.5s ease;
+    }
+    .card {
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      animation: fadeIn 0.6s ease;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 0.8rem;
+      margin: 0.5rem 0;
+      border-radius: 0.5rem;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    button {
+      background-color: #8b5cf6;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #7c3aed;
+    }
+    .error {
+      color: #dc2626;
+      font-size: 0.9rem;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="card" id="questionCard">
+    <h2 id="question">Name</h2>
+    <input type="text" id="answerInput">
+    <div class="error" id="errorMsg"></div>
+    <button onclick="nextQuestion()">Next</button>
+  </div>
+
+  <script>
+    const questions = [
+      { question: "What's your favorite food?", key: "food" },
+      { question: "What's your idea of a perfect date?", key: "date" },
+      { question: "Dogs or cats?", key: "pet" },
+      { question: "Are you more of a night owl or early bird?", key: "vibe" },
+    ];
+
+    let answers = {};
+    let currentQuestion = -1;
+
+    function nextQuestion() {
+      const input = document.getElementById('answerInput');
+      const errorMsg = document.getElementById('errorMsg');
+      const answer = input.value.trim();
+
+      if (answer === '') {
+        errorMsg.innerText = 'Please enter a response before continuing.';
+        return;
+      }
+      errorMsg.innerText = '';
+
+      if (currentQuestion >= 0) {
+        const key = questions[currentQuestion].key;
+        answers[key] = answer;
+      } else {
+        answers.name = answer;
+      }
+
+      input.value = '';
+      currentQuestion++;
+
+      if (currentQuestion < questions.length) {
+        document.getElementById('question').innerText = questions[currentQuestion].question;
+      } else {
+        sendToGoogleForm();
+        showFinalMessage();
+      }
+    }
+
+    function sendToGoogleForm() {
+      const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfyO6AM4yNi36Vjbtjg7KCLD3f7lies5p7VyfMfqKcNFPIlFQ/formResponse';
+      const data = new URLSearchParams();
+
+      data.append('entry.430464247', answers.name || '');
+      data.append('entry.1967931685', answers.food || '');
+      data.append('entry.1281056919', answers.date || '');
+      data.append('entry.693567975', answers.pet || '');
+      data.append('entry.1571457510', answers.vibe || '');
+
+      fetch(formUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: data
+      });
+    }
+
+    function showFinalMessage() {
+      const card = document.getElementById('questionCard');
+      const favFood = answers.food;
+      const favDate = answers.date;
+      const pet = answers.pet?.toLowerCase();
+      const vibe = answers.vibe?.toLowerCase();
+      const timeOfDay = vibe && vibe.includes('night') ? 'at night' : 'in the morning';
+
+      // Theming based on pet
+      if (pet?.includes('dog')) {
+        document.body.style.backgroundColor = '#fff7ed'; // warm beige
+      } else if (pet?.includes('cat')) {
+        document.body.style.backgroundColor = '#eef2ff'; // soft lavender
+      }
+
+      card.innerHTML = `
+        <h2>Okay ${answers.name}, I have a question now... 💬</h2>
+        <p>Would you want to grab some ${favFood} with me sometime ${timeOfDay}? Maybe we can do a ${favDate} after that too! Just us!😇</p>
+        <button onclick="showYesMessage()">Say yes?</button>
+      `;
+    }
+
+    function showYesMessage() {
+      const card = document.getElementById('questionCard');
+      card.innerHTML = `
+        <h2>🎉 Yay! I'm really happy you said yes!</h2>
+        <p>I'll text you soon 💬💜 Looking forward to it already.</p>
+      `;
+    }
+  </script>
+</body>
+</html>
